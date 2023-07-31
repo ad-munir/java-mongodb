@@ -1,12 +1,13 @@
 package org.example;
 
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MongoManager {
 
@@ -32,8 +33,26 @@ public class MongoManager {
         collection.updateOne(Filters.eq(key, value), Updates.set(updateKey, updateValue));
     }
 
+    public List<Document> findAllDocuments() {
+        List<Document> documentsList = new ArrayList<>();
+        FindIterable<Document> documents = collection.find();
+        MongoCursor<Document> cursor = documents.iterator();
+
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            documentsList.add(document);
+        }
+
+        return documentsList;
+    }
+
     public void deleteDocument(String key, Object value) {
         collection.deleteOne(Filters.eq(key, value));
+    }
+
+    public long deleteAllDocuments() {
+        DeleteResult result = collection.deleteMany(new Document());
+        return result.getDeletedCount();
     }
 
     public void closeConnection() {
